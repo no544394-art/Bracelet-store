@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart | Elegant Bracelet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-light:#FBEEF0;
+    --pink-soft:#F3D9DE;
+    --pink-mid:#E9C4CC;
+    --cream:#FFF9F5;
+    --olive:#7C8B5E;
+    --olive-dark:#5C6B41;
+    --olive-pale:#DCE3CC;
+    --text-dark:#3A3630;
+    --text-mute:#7A736C;
+    --gold:#C9A66B;
+    --white:#FFFFFF;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(92,107,65,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--text-dark);}
+  h1,h2,h3,.logo,.price{font-family:'Cormorant Garamond',serif;}
+  a{text-decoration:none;color:inherit;}
+  img{display:block;max-width:100%;}
+  button{font-family:'Poppins',sans-serif;cursor:pointer;border:none;background:none;}
+
+  #loader{position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;}
+  .spinner{width:44px;height:44px;border-radius:50%;border:3px solid var(--pink-soft);border-top-color:var(--olive);animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loader.hide{opacity:0;pointer-events:none;}
+
+  header{position:sticky;top:0;z-index:500;background:rgba(255,249,245,0.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--pink-soft);}
+  .header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;}
+  .logo{font-size:1.5rem;font-weight:600;color:var(--olive-dark);letter-spacing:.5px;}
+  .header-icons{display:flex;align-items:center;gap:16px;}
+  .icon-btn{position:relative;font-size:1.25rem;color:var(--olive-dark);}
+  .cart-badge{position:absolute;top:-6px;right:-9px;background:var(--gold);color:#fff;font-size:.62rem;font-weight:600;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;}
+  .hamburger{display:flex;flex-direction:column;gap:4px;width:24px;cursor:pointer;}
+  .hamburger span{height:2px;background:var(--olive-dark);border-radius:2px;}
+
+  .overlay{position:fixed;inset:0;background:rgba(58,54,48,0.35);opacity:0;pointer-events:none;transition:.3s;z-index:600;}
+  .overlay.active{opacity:1;pointer-events:auto;}
+  .side-nav{position:fixed;top:0;right:-280px;width:260px;height:100%;background:var(--white);z-index:700;box-shadow:-4px 0 20px rgba(0,0,0,0.1);transition:right .35s ease;padding:24px 0;display:flex;flex-direction:column;}
+  .side-nav.active{right:0;}
+  .side-nav-close{align-self:flex-end;margin:0 20px 20px;font-size:1.4rem;color:var(--olive-dark);}
+  .side-nav a{padding:14px 26px;font-size:1.05rem;color:var(--text-dark);border-left:3px solid transparent;}
+  .side-nav a.active-link{border-left-color:var(--olive);color:var(--olive-dark);font-weight:600;background:var(--pink-light);}
+
+  .page-hero{text-align:center;padding:28px 20px 8px;}
+  .page-hero h1{font-size:2rem;color:var(--olive-dark);font-weight:600;}
+  .page-hero p{font-size:.82rem;color:var(--text-mute);margin-top:4px;font-style:italic;}
+
+  .cart-wrap{max-width:640px;margin:0 auto;padding:14px 16px 40px;}
+
+  .empty-cart{text-align:center;padding:60px 20px;color:var(--text-mute);}
+  .empty-cart span{font-size:2.4rem;display:block;margin-bottom:10px;}
+  .empty-cart a{display:inline-block;margin-top:16px;background:var(--olive);color:#fff;padding:11px 26px;border-radius:24px;font-size:.85rem;}
+
+  .cart-item{display:flex;gap:12px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;margin-bottom:12px;animation:fadeUp .4s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .cart-item img{width:78px;height:78px;object-fit:cover;border-radius:10px;flex-shrink:0;background:var(--pink-light);}
+  .cart-item-info{flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+  .cart-item-name{font-size:1.05rem;font-weight:600;line-height:1.2;}
+  .cart-item-price{font-size:.85rem;color:var(--olive-dark);font-weight:600;}
+  .cart-item-row{display:flex;align-items:center;justify-content:space-between;}
+  .stepper{display:flex;align-items:center;border:1px solid var(--pink-mid);border-radius:20px;overflow:hidden;}
+  .stepper button{width:26px;height:26px;font-size:.95rem;color:var(--olive-dark);background:var(--pink-light);}
+  .stepper span{width:22px;text-align:center;font-size:.8rem;font-weight:500;}
+  .remove-btn{font-size:.7rem;color:#C97A6D;text-decoration:underline;padding:4px;}
+
+  .promo-row{display:flex;gap:8px;margin:18px 0;}
+  .promo-row input{flex:1;padding:11px 14px;border-radius:24px;border:1px solid var(--pink-mid);font-size:.85rem;}
+  .promo-row button{background:var(--olive-pale);color:var(--olive-dark);padding:0 18px;border-radius:24px;font-size:.8rem;font-weight:500;}
+
+  .summary-box{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-top:8px;}
+  .summary-row{display:flex;justify-content:space-between;font-size:.87rem;color:var(--text-mute);padding:6px 0;}
+  .summary-row.total{border-top:1px dashed var(--pink-mid);margin-top:8px;padding-top:12px;font-size:1.1rem;color:var(--text-dark);font-weight:600;font-family:'Cormorant Garamond',serif;}
+  .summary-row.total span:last-child{color:var(--olive-dark);}
+
+  .city-note{font-size:.72rem;color:var(--text-mute);margin-top:4px;display:flex;align-items:center;gap:5px;}
+
+  .checkout-btn{
+    display:block;width:100%;text-align:center;
+    background:var(--olive);color:#fff;padding:15px;border-radius:26px;
+    font-size:.95rem;font-weight:500;margin-top:18px;letter-spacing:.3px;
+    box-shadow:0 6px 16px rgba(92,107,65,0.25);
+  }
+  .checkout-btn:active{background:var(--olive-dark);}
+  .continue-shopping{display:block;text-align:center;margin-top:14px;font-size:.82rem;color:var(--olive-dark);text-decoration:underline;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--olive-dark);color:#fff;padding:11px 20px;border-radius:24px;font-size:.8rem;opacity:0;transition:.35s;z-index:1000;box-shadow:var(--shadow);white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer{background:var(--olive-dark);color:var(--pink-light);padding:36px 22px 26px;margin-top:24px;}
+  footer h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#fff;margin-bottom:12px;}
+  .footer-contact p{font-size:.85rem;margin-bottom:8px;opacity:.9;}
+  .footer-social{display:flex;gap:14px;margin-top:14px;}
+  .footer-social a{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#fff;}
+  .footer-bottom{text-align:center;font-size:.72rem;opacity:.7;margin-top:26px;border-top:1px solid rgba(255,255,255,0.12);padding-top:16px;}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<div class="overlay" id="overlay"></div>
+<nav class="side-nav" id="sideNav">
+  <span class="side-nav-close" id="navClose">&times;</span>
+  <a href="index.html">Home</a>
+  <a href="shop.html">Shop</a>
+  <a href="index.html#why-choose-us">About Us</a>
+  <a href="cart.html" class="active-link">Cart</a>
+  <a href="#siteFooter">Contact</a>
+</nav>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="logo">Elegant Bracelet</a>
+    <div class="header-icons">
+      <a href="cart.html" class="icon-btn" aria-label="Cart">🛍
+        <span class="cart-badge" id="cartBadge">0</span>
+      </a>
+      <div class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <h1>Your Cart</h1>
+  <p>Review your pieces before checkout</p>
+</section>
+
+<div class="cart-wrap" id="cartWrap"></div>
+
+<footer id="siteFooter">
+  <h3>Elegant Bracelet</h3>
+  <div class="footer-contact">
+    <p>📞 +91 98765 43210</p>
+    <p>✉️ hello@elegantbracelet.com</p>
+    <p>🌐 www.elegantbracelet.com</p>
+  </div>
+  <div class="footer-social">
+    <a href="#" aria-label="Facebook">f</a>
+    <a href="#" aria-label="Instagram">ig</a>
+    <a href="#" aria-label="WhatsApp">wa</a>
+  </div>
+  <div class="footer-bottom">&copy; 2026 Elegant Bracelet. All rights reserved.</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHIPPING_CITY = "Jaipur";
+const SHIPPING_FEE = 99;
+const FREE_SHIPPING_THRESHOLD = 2500;
+
+function getCart(){ return JSON.parse(localStorage.getItem('eb_cart') || '[]'); }
+function setCart(c){ localStorage.setItem('eb_cart', JSON.stringify(c)); updateCartBadge(); }
+function updateCartBadge(){
+  const cart = getCart();
+  document.getElementById('cartBadge').textContent = cart.reduce((s,i)=>s+i.qty,0);
+}
+
+const cartWrap = document.getElementById('cartWrap');
+
+function renderCart(){
+  const cart = getCart();
+  if(cart.length === 0){
+    cartWrap.innerHTML = `
+      <div class="empty-cart">
+        <span>🛍</span>
+        Your cart is empty.<br>Find something you'll love.
+        <a href="shop.html">Browse the Shop</a>
+      </div>`;
+    return;
+  }
+
+  const itemsHtml = cart.map(item => `
+    <div class="cart-item" data-id="${item.id}">
+      <img src="${item.image}" alt="${item.name}">
+      <div class="cart-item-info">
+        <div>
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">₹${item.price} each</div>
+        </div>
+        <div class="cart-item-row">
+          <div class="stepper">
+            <button data-dec="${item.id}">−</button>
+            <span>${item.qty}</span>
+            <button data-inc="${item.id}">+</button>
+          </div>
+          <button class="remove-btn" data-remove="${item.id}">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  const total = subtotal + shipping;
+
+  cartWrap.innerHTML = itemsHtml + `
+    <div class="summary-box">
+      <div class="summary-row"><span>Subtotal</span><span>₹${subtotal}</span></div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>${shipping === 0 ? 'Free' : '₹'+shipping}</span>
+      </div>
+      <div class="city-note">📍 Delivering to ${SHIPPING_CITY} ${shipping===0 ? '' : `· Free shipping over ₹${FREE_SHIPPING_THRESHOLD}`}</div>
+      <div class="summary-row total"><span>Total</span><span>₹${total}</span></div>
+    </div>
+    <a href="checkout.html" class="checkout-btn">Proceed to Checkout</a>
+    <a href="shop.html" class="continue-shopping">Continue Shopping</a>
+  `;
+}
+renderCart();
+
+cartWrap.addEventListener('click', (e)=>{
+  const decId = e.target.dataset.dec;
+  const incId = e.target.dataset.inc;
+  const removeId = e.target.dataset.remove;
+  let cart = getCart();
+
+  if(decId){
+    const item = cart.find(i=>i.id===decId);
+    if(item){
+      item.qty -= 1;
+      if(item.qty <= 0) cart = cart.filter(i=>i.id!==decId);
+    }
+    setCart(cart); renderCart();
+  }
+  if(incId){
+    const item = cart.find(i=>i.id===incId);
+    if(item) item.qty = Math.min(9, item.qty+1);
+    setCart(cart); renderCart();
+  }
+  if(removeId){
+    const removed = cart.find(i=>i.id===removeId);
+    cart = cart.filter(i=>i.id!==removeId);
+    setCart(cart); renderCart();
+    showToast(`${removed.name} removed from cart`);
+  }
+});
+
+let toastTimer;
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 2000);
+}
+
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const sideNav = document.getElementById('sideNav');
+const overlay = document.getElementById('overlay');
+const navClose = document.getElementById('navClose');
+hamburgerBtn.addEventListener('click', ()=>{ sideNav.classList.add('active'); overlay.classList.add('active'); });
+navClose.addEventListener('click', ()=>{ sideNav.classList.remove('active'); overlay.classList.remove('active'); });
+overlay.addEventListener('click', ()=>{ sideNav.classList.remove('active'); overlay.classList.remove('active'); });
+
+window.addEventListener('load', ()=>{
+  updateCartBadge();
+  setTimeout(()=>{ document.getElementById('loader').classList.add('hide'); }, 350);
+});
+</script>
+</body>
+</html>

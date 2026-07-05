@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | Elegant Bracelet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-light:#FBEEF0;
+    --pink-soft:#F3D9DE;
+    --pink-mid:#E9C4CC;
+    --cream:#FFF9F5;
+    --olive:#7C8B5E;
+    --olive-dark:#5C6B41;
+    --olive-pale:#DCE3CC;
+    --text-dark:#3A3630;
+    --text-mute:#7A736C;
+    --gold:#C9A66B;
+    --white:#FFFFFF;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(92,107,65,0.12);
+    --error:#C0473E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--text-dark);}
+  h1,h2,h3,.logo{font-family:'Cormorant Garamond',serif;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:'Poppins',sans-serif;cursor:pointer;border:none;background:none;}
+
+  #loader{position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;}
+  .spinner{width:44px;height:44px;border-radius:50%;border:3px solid var(--pink-soft);border-top-color:var(--olive);animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loader.hide{opacity:0;pointer-events:none;}
+
+  header{position:sticky;top:0;z-index:500;background:rgba(255,249,245,0.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--pink-soft);}
+  .header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;}
+  .logo{font-size:1.4rem;font-weight:600;color:var(--olive-dark);}
+  .step-indicator{font-size:.72rem;color:var(--text-mute);}
+
+  .page-hero{text-align:center;padding:26px 20px 6px;}
+  .page-hero h1{font-size:1.9rem;color:var(--olive-dark);font-weight:600;}
+  .page-hero p{font-size:.82rem;color:var(--text-mute);margin-top:4px;font-style:italic;}
+
+  .wrap{max-width:600px;margin:0 auto;padding:16px 18px 50px;}
+
+  .section-box{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px;}
+  .section-box h2{font-size:1.25rem;color:var(--olive-dark);margin-bottom:14px;font-weight:600;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.78rem;color:var(--text-mute);margin-bottom:6px;font-weight:500;}
+  .field input, .field textarea{
+    width:100%;padding:11px 14px;border-radius:10px;
+    border:1px solid var(--pink-mid);font-size:.88rem;
+    background:var(--cream);color:var(--text-dark);font-family:'Poppins',sans-serif;
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--olive);outline-offset:1px;background:var(--white);}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field.error input, .field.error textarea{border-color:var(--error);}
+  .field-error-msg{font-size:.7rem;color:var(--error);margin-top:4px;display:none;}
+  .field.error .field-error-msg{display:block;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .pay-options{display:flex;flex-direction:column;gap:10px;}
+  .pay-option{
+    display:flex;align-items:center;gap:10px;
+    border:1px solid var(--pink-mid);border-radius:10px;padding:12px 14px;
+    font-size:.85rem;cursor:pointer;transition:.2s;
+  }
+  .pay-option input{accent-color:var(--olive);width:16px;height:16px;}
+  .pay-option.selected{border-color:var(--olive);background:var(--pink-light);}
+
+  .order-line{display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-mute);padding:5px 0;}
+  .order-line span:last-child{color:var(--text-dark);font-weight:500;}
+  .order-total{border-top:1px dashed var(--pink-mid);margin-top:8px;padding-top:10px;font-size:1.05rem;font-weight:600;color:var(--olive-dark);font-family:'Cormorant Garamond',serif;}
+
+  .place-order-btn{
+    display:block;width:100%;text-align:center;
+    background:var(--olive);color:#fff;padding:15px;border-radius:26px;
+    font-size:.95rem;font-weight:500;letter-spacing:.3px;
+    box-shadow:0 6px 16px rgba(92,107,65,0.25);
+  }
+  .place-order-btn:active{background:var(--olive-dark);}
+  .back-link{display:block;text-align:center;margin-top:14px;font-size:.82rem;color:var(--olive-dark);text-decoration:underline;}
+
+  /* Confirmation */
+  .confirm-screen{display:none;text-align:center;padding:40px 24px;}
+  .confirm-screen.active{display:block;}
+  .confirm-icon{
+    width:70px;height:70px;border-radius:50%;background:var(--olive-pale);
+    display:flex;align-items:center;justify-content:center;font-size:2rem;
+    margin:0 auto 18px;color:var(--olive-dark);
+    animation:pop .4s ease;
+  }
+  @keyframes pop{from{transform:scale(0.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .confirm-screen h1{font-size:1.8rem;color:var(--olive-dark);margin-bottom:8px;}
+  .confirm-screen p{font-size:.88rem;color:var(--text-mute);margin-bottom:4px;}
+  .order-id{font-size:.85rem;color:var(--olive-dark);font-weight:600;margin:14px 0;letter-spacing:.5px;}
+  .confirm-screen .place-order-btn{max-width:240px;margin:22px auto 0;}
+
+  .checkout-form.hide{display:none;}
+
+  footer{background:var(--olive-dark);color:var(--pink-light);padding:36px 22px 26px;margin-top:24px;}
+  footer h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:#fff;margin-bottom:12px;}
+  .footer-contact p{font-size:.85rem;margin-bottom:8px;opacity:.9;}
+  .footer-bottom{text-align:center;font-size:.72rem;opacity:.7;margin-top:26px;border-top:1px solid rgba(255,255,255,0.12);padding-top:16px;}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spinner"></div></div>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="logo">Elegant Bracelet</a>
+    <span class="step-indicator" id="stepIndicator">Cart → Details → Confirmed</span>
+  </div>
+</header>
+
+<section class="page-hero" id="pageHero">
+  <h1>Checkout</h1>
+  <p>Just a few details to get your order moving</p>
+</section>
+
+<div class="wrap">
+
+  <form class="checkout-form" id="checkoutForm">
+
+    <!-- Empty cart guard -->
+    <div class="section-box" id="emptyGuard" style="display:none;text-align:center;">
+      <p style="color:var(--text-mute);margin-bottom:12px;">Your cart is empty, so there's nothing to check out yet.</p>
+      <a href="shop.html" class="place-order-btn" style="display:inline-block;width:auto;padding:12px 26px;">Go to Shop</a>
+    </div>
+
+    <div id="formContent">
+      <div class="section-box">
+        <h2>Order Summary</h2>
+        <div id="orderLines"></div>
+      </div>
+
+      <div class="section-box">
+        <h2>Contact & Delivery</h2>
+        <div class="field" id="f-name">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="Your name">
+          <div class="field-error-msg">Please enter your name.</div>
+        </div>
+        <div class="field" id="f-email">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com">
+          <div class="field-error-msg">Please enter a valid email.</div>
+        </div>
+        <div class="field" id="f-phone">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="10-digit mobile number">
+          <div class="field-error-msg">Please enter a valid phone number.</div>
+        </div>
+        <div class="field" id="f-address">
+          <label for="address">Delivery Address</label>
+          <textarea id="address" placeholder="House no., street, area, city, pincode"></textarea>
+          <div class="field-error-msg">Please enter your delivery address.</div>
+        </div>
+        <div class="field">
+          <label for="altAddress">Alternate Address <span style="font-weight:400;">(optional, in case you're not available)</span></label>
+          <textarea id="altAddress" placeholder="Backup address — optional"></textarea>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <h2>Payment Method</h2>
+        <div class="pay-options" id="payOptions">
+          <label class="pay-option selected" data-value="card">
+            <input type="radio" name="payment" value="card" checked> Credit / Debit Card
+          </label>
+          <label class="pay-option" data-value="upi">
+            <input type="radio" name="payment" value="upi"> UPI
+          </label>
+          <label class="pay-option" data-value="cod">
+            <input type="radio" name="payment" value="cod"> Cash on Delivery
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="place-order-btn">Place Order</button>
+      <a href="cart.html" class="back-link">Back to Cart</a>
+    </div>
+  </form>
+
+  <div class="confirm-screen" id="confirmScreen">
+    <div class="confirm-icon">✓</div>
+    <h1>Order Confirmed!</h1>
+    <p>Thank you, <span id="confirmName">friend</span> — your pieces are on their way.</p>
+    <p>A confirmation has been noted for <span id="confirmEmail"></span></p>
+    <div class="order-id" id="confirmOrderId"></div>
+    <a href="index.html" class="place-order-btn">Continue Shopping</a>
+  </div>
+
+</div>
+
+<footer id="siteFooter">
+  <h3>Elegant Bracelet</h3>
+  <div class="footer-contact">
+    <p>📞 +91 98765 43210</p>
+    <p>✉️ hello@elegantbracelet.com</p>
+    <p>🌐 www.elegantbracelet.com</p>
+  </div>
+  <div class="footer-bottom">&copy; 2026 Elegant Bracelet. All rights reserved.</div>
+</footer>
+
+<script>
+const SHIPPING_FEE = 99;
+const FREE_SHIPPING_THRESHOLD = 2500;
+
+function getCart(){ return JSON.parse(localStorage.getItem('eb_cart') || '[]'); }
+function setCart(c){ localStorage.setItem('eb_cart', JSON.stringify(c)); }
+
+const cart = getCart();
+const orderLines = document.getElementById('orderLines');
+const emptyGuard = document.getElementById('emptyGuard');
+const formContent = document.getElementById('formContent');
+
+if(cart.length === 0){
+  emptyGuard.style.display = 'block';
+  formContent.style.display = 'none';
+} else {
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  const total = subtotal + shipping;
+
+  orderLines.innerHTML = cart.map(item => `
+    <div class="order-line"><span>${item.name} × ${item.qty}</span><span>₹${item.price*item.qty}</span></div>
+  `).join('') + `
+    <div class="order-line"><span>Shipping</span><span>${shipping===0?'Free':'₹'+shipping}</span></div>
+    <div class="order-line order-total"><span>Total</span><span>₹${total}</span></div>
+  `;
+}
+
+/* Payment option highlight */
+const payOptions = document.querySelectorAll('.pay-option');
+payOptions.forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    payOptions.forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+  });
+});
+
+/* Validation + submit */
+const form = document.getElementById('checkoutForm');
+const fields = {
+  fullName: {el: '#f-name', input: '#fullName', validate: v => v.trim().length > 1},
+  email: {el: '#f-email', input: '#email', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},
+  phone: {el: '#f-phone', input: '#phone', validate: v => /^[0-9]{10}$/.test(v.replace(/\D/g,''))},
+  address: {el: '#f-address', input: '#address', validate: v => v.trim().length > 5}
+};
+
+form.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  let valid = true;
+  Object.values(fields).forEach(f => {
+    const input = document.querySelector(f.input);
+    const wrap = document.querySelector(f.el);
+    if(!f.validate(input.value)){
+      wrap.classList.add('error');
+      valid = false;
+    } else {
+      wrap.classList.remove('error');
+    }
+  });
+  if(!valid) return;
+
+  const name = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const orderId = 'EB' + Date.now().toString().slice(-8);
+
+  document.getElementById('confirmName').textContent = name;
+  document.getElementById('confirmEmail').textContent = email;
+  document.getElementById('confirmOrderId').textContent = 'Order ID: ' + orderId;
+
+  setCart([]); // clear cart after successful order
+
+  document.getElementById('pageHero').style.display = 'none';
+  form.style.display = 'none';
+  document.getElementById('confirmScreen').classList.add('active');
+});
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ document.getElementById('loader').classList.add('hide'); }, 350);
+});
+</script>
+</body>
+</html>
